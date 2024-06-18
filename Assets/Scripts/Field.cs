@@ -180,7 +180,7 @@ public class Field : MonoBehaviour
     } 
     private int PositionEvaluation(Mark winner, int depth)
     {
-        return SimplePositionEvaluation(winner, depth);
+        return (GameManager.Instance.FieldSize == FieldSize._3x3) ? SimplePositionEvaluation(winner, depth) : HeuristicPositionEvaluation(depth);
     } 
     private int SimplePositionEvaluation(Mark winner, int depth)
     {
@@ -189,7 +189,43 @@ public class Field : MonoBehaviour
         else
             return (winner == CurrentMark) ? 10 - depth : depth - 10; 
     }
-   
+    private int HeuristicPositionEvaluation(int depth)
+    {
+        int score = 0;
+        var lines = Lines();
+        foreach (var line in lines)
+        {
+            int yourCount = 0, oppCount = 0;
+            for (int i = 0; i < line.Length; i++)
+            {
+                if (marks[line[i]] == CurrentMark)
+                    yourCount++;
+                else if (marks[line[i]] == GameManager.Instance.OppositeMark(CurrentMark))
+                    oppCount++;
+            }
+
+            if (yourCount != 0 && oppCount != 0)
+                continue;
+            else if (yourCount == 1)
+                score += 10 - depth;
+            else if (yourCount == 2)
+                score += 100 - depth * 10;
+            else if (yourCount == 3)
+                score += 1000 - depth * 100;
+            else if (yourCount == 4)
+                score += 10000 - depth * 1000;
+            else if (oppCount == 1)
+                score += depth - 10;
+            else if (oppCount == 2)
+                score += depth * 10 - 100;
+            else if (oppCount == 3)
+                score += depth * 100 - 1000;
+            else if (oppCount == 4)
+                score += depth * 1000 - 10000;
+        }
+        return score;
+    }
+
     private EndGame CheckEndGame()
     {
         var lines = Lines();
