@@ -131,8 +131,9 @@ public class Field : MonoBehaviour
     }
     private Cell FindBestCellForComputerMove()
     {
-        int bestScore = Int32.MinValue, bestPos = -1, score;
- 
+        int bestScore = Int32.MinValue, bestPos, score;
+        var moves = new List<int>();
+
         for (int i = 0; i < cellsCount; i++)
         {
             if (marks[i] != Mark.Null)
@@ -145,10 +146,16 @@ public class Field : MonoBehaviour
             if (bestScore < score)
             {
                 bestScore   = score;
-                bestPos     = i;    
+                moves.Clear();
+                moves.Add(i);    
+            }
+            else if (bestScore == score)
+            {
+                moves.Add(i);
             }
         }
-       
+        bestPos = moves[new System.Random().Next(moves.Count)];
+
         return cells[bestPos];
     }   
     private int Minimax(Mark mark, int depth, int alpha, int beta)
